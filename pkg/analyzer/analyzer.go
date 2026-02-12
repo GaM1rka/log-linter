@@ -2,7 +2,6 @@ package analyzer
 
 import (
 	"go/ast"
-	"log"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -28,15 +27,8 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			if ident, ok := sel.X.(*ast.Ident); ok {
 				if ident.Name == "slog" {
 					switch sel.Sel.Name {
-					case "Info":
-						log.Print("Uraaaaa")
-						pass.Reportf(ce.Pos(), "slog.Info method")
-					case "Warn":
-						pass.Reportf(ce.Pos(), "slog.Warn method")
-					case "Debug":
-						pass.Reportf(ce.Pos(), "slog.Debug method")
-					case "Error":
-						pass.Reportf(ce.Pos(), "slog.Error method")
+					case "Info", "Warn", "Error", "Debug":
+						runRules(pass, ce)
 					}
 				}
 			}
@@ -48,4 +40,24 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		ast.Inspect(file, inspect)
 	}
 	return nil, nil
+}
+
+func runRules(pass *analysis.Pass, ce *ast.CallExpr) {
+	msg, ok := extractMessage(ce)
+	if !ok {
+		return
+	}
+
+	if errMsg, ok := checkStartsWithLowercase(msg); !ok {
+		pass.Reportf(ce.Pos(), errMsg)
+	}
+	if errMsg, ok := checkEnglishOnly(msg); !ok {
+		pass.Reportf(ce.Pos(), errMsg)
+	}
+	if errMsg, ok := checkNoEmojiOrSpecial(msg); !ok {
+		pass.Reportf(ce.Pos(), errMsg)
+	}
+	if errMsg, ok := checkNoSensitive(msg); !ok {
+		pass.Reportf(ce.Pos(), errMsg)
+	}
 }
