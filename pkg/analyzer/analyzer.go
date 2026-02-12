@@ -33,6 +33,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 				}
 			}
 		}
+		if isZapCall(pass, ce) {
+			runRules(pass, ce)
+		}
 		return true
 	}
 
@@ -40,6 +43,32 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		ast.Inspect(file, inspect)
 	}
 	return nil, nil
+}
+
+func isZapCall(pass *analysis.Pass, call *ast.CallExpr) bool {
+	sel, ok := call.Fun.(*ast.SelectorExpr)
+
+	if !ok {
+		return true
+	}
+
+	switch sel.Sel.Name {
+	case "Debug", "Info", "Warn", "Error", "DPanic", "Panic", "Fatal":
+	default:
+		return false
+	}
+
+	selection := pass.TypesInfo.Selections[sel]
+	if selection == nil {
+		return false
+	}
+
+	obj := selection.Obj()
+	if obj == nil || obj.Pkg() == nil {
+		return false
+	}
+
+	return obj.Pkg().Path() == "go.uber.org/zap"
 }
 
 func runRules(pass *analysis.Pass, ce *ast.CallExpr) {
