@@ -12,7 +12,30 @@ func init() {
 	register.Plugin("loglinter", New)
 }
 
-func New(_ any) (register.LinterPlugin, error) {
+func New(settings any) (register.LinterPlugin, error) {
+	cfg := analyzer.Config{
+		EnableLowercase:   true,
+		EnableEnglishOnly: true,
+		EnableNoSpecial:   true,
+		EnableNoSensitive: true,
+	}
+
+	if settingsMap, ok := settings.(map[string]any); ok {
+		if v, ok := settingsMap["enableLowercase"].(bool); ok {
+			cfg.EnableLowercase = v
+		}
+		if v, ok := settingsMap["enableEnglishOnly"].(bool); ok {
+			cfg.EnableEnglishOnly = v
+		}
+		if v, ok := settingsMap["enableNoSpecial"].(bool); ok {
+			cfg.EnableNoSpecial = v
+		}
+		if v, ok := settingsMap["enableNoSensitive"].(bool); ok {
+			cfg.EnableNoSensitive = v
+		}
+	}
+
+	analyzer.SetConfig(cfg)
 	return &Plugin{}, nil
 }
 
