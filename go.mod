@@ -1,4 +1,5 @@
-module log-linter
+module github.com/GaM1rka/log-linter
+
 
 go 1.24.4
 
