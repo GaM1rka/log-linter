@@ -29,3 +29,25 @@ func TestCheckStartsWithLowercase(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckEnglishOnly(t *testing.T) {
+	tests := []Test{
+		{
+			input:   "starting server 8080",
+			wantMsg: "",
+			wantOk:  true,
+		},
+		{
+			input:   "запуск сервера",
+			wantMsg: "message must contain only English letters, digits and spaces",
+			wantOk:  false,
+		},
+	}
+
+	for _, test := range tests {
+		msg, ok := checkEnglishOnly(test.input)
+		if msg != test.wantMsg || ok != test.wantOk {
+			t.Errorf("checkEnglishOnly(%q) = (%q, %v), want(%q, %v)", test.input, msg, ok, test.wantMsg, test.wantOk)
+		}
+	}
+}
