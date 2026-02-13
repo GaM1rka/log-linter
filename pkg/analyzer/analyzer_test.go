@@ -3,7 +3,7 @@ package analyzer_test
 import (
 	"testing"
 
-	"log-linter/pkg/analyzer"
+	"github.com/GaM1rka/log-linter/pkg/analyzer"
 
 	"golang.org/x/tools/go/analysis/analysistest"
 )
