@@ -21,6 +21,10 @@ func New(settings any) (register.LinterPlugin, error) {
 	}
 
 	if settingsMap, ok := settings.(map[string]any); ok {
+		if inner, ok := settingsMap["settings"].(map[string]any); ok {
+			settingsMap = inner
+		}
+
 		if v, ok := settingsMap["enableLowercase"].(bool); ok {
 			cfg.EnableLowercase = v
 		}
