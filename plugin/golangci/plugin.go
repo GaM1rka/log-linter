@@ -21,6 +21,5 @@ func (p *Plugin) BuildAnalyzers() ([]*analysis.Analyzer, error) {
 }
 
 func (p *Plugin) GetLoadMode() string {
-	// тебе нужен types info для zap (pass.TypesInfo), значит TypesInfo mode
 	return register.LoadModeTypesInfo
 }
