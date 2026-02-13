@@ -73,3 +73,35 @@ func TestCheckNoEmojiOrSpecial(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckNoSensitive(t *testing.T) {
+	tests := []Test{
+		{
+			input:   "user authenticated successfully",
+			wantMsg: "",
+			wantOk:  true,
+		},
+		{
+			input:   "user password: 123",
+			wantMsg: "message must not contain sensitive data",
+			wantOk:  false,
+		},
+		{
+			input:   "token: aoaoaoao",
+			wantMsg: "message must not contain sensitive data",
+			wantOk:  false,
+		},
+		{
+			input:   "apiKey is abcdef",
+			wantMsg: "message must not contain sensitive data",
+			wantOk:  false,
+		},
+	}
+
+	for _, test := range tests {
+		msg, ok := checkNoSensitive(test.input)
+		if msg != test.wantMsg || ok != test.wantOk {
+			t.Errorf("checkNoSensitive(%q) = (%q, %v), want(%q, %v)", test.input, msg, ok, test.wantMsg, test.wantOk)
+		}
+	}
+}
