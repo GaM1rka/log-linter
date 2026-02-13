@@ -78,15 +78,15 @@ func runRules(pass *analysis.Pass, ce *ast.CallExpr) {
 	}
 
 	if errMsg, ok := checkStartsWithLowercase(msg); !ok {
-		pass.Reportf(ce.Pos(), errMsg)
+		pass.Reportf(ce.Pos(), "%s", errMsg)
 	}
 	if errMsg, ok := checkEnglishOnly(msg); !ok {
-		pass.Reportf(ce.Pos(), errMsg)
+		pass.Reportf(ce.Pos(), "%s", errMsg)
 	}
 	if errMsg, ok := checkNoEmojiOrSpecial(msg); !ok {
-		pass.Reportf(ce.Pos(), errMsg)
+		pass.Reportf(ce.Pos(), "%s", errMsg)
 	}
 	if errMsg, ok := checkNoSensitive(msg); !ok {
-		pass.Reportf(ce.Pos(), errMsg)
+		pass.Reportf(ce.Pos(), "%s", errMsg)
 	}
 }
