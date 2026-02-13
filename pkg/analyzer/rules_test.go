@@ -51,3 +51,25 @@ func TestCheckEnglishOnly(t *testing.T) {
 		}
 	}
 }
+
+func TestCheckNoEmojiOrSpecial(t *testing.T) {
+	tests := []Test{
+		{
+			input:   "blinding lights",
+			wantMsg: "",
+			wantOk:  true,
+		},
+		{
+			input:   "⚡️blinding lights⚡️",
+			wantMsg: "message must not contain emoji or special symbols",
+			wantOk:  false,
+		},
+	}
+
+	for _, test := range tests {
+		msg, ok := checkNoEmojiOrSpecial(test.input)
+		if msg != test.wantMsg || ok != test.wantOk {
+			t.Errorf("checkNoEmojiOrSpecial(%q) = (%q, %v), want(%q, %v)", test.input, msg, ok, test.wantMsg, test.wantOk)
+		}
+	}
+}
