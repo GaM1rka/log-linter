@@ -17,6 +17,24 @@ var Analyzer = &analysis.Analyzer{
 	RunDespiteErrors: true,
 }
 
+type Config struct {
+	EnableLowercase   bool `mapstructure:"enableLowercase"`
+	EnableEnglishOnly bool `mapstructure:"enableEnglishOnly"`
+	EnableNoSpecial   bool `mapstructure:"enableNoSpecial"`
+	EnableNoSensitive bool `mapstructure:"enableNoSensitive"`
+}
+
+var config = Config{
+	EnableLowercase:   true,
+	EnableEnglishOnly: true,
+	EnableNoSpecial:   true,
+	EnableNoSensitive: true,
+}
+
+func SetConfig(cfg Config) {
+	config = cfg
+}
+
 func run(pass *analysis.Pass) (interface{}, error) {
 	inspect := func(node ast.Node) bool {
 		ce, ok := node.(*ast.CallExpr)
@@ -49,7 +67,7 @@ func isZapCall(pass *analysis.Pass, call *ast.CallExpr) bool {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 
 	if !ok {
-		return true
+		return false
 	}
 
 	switch sel.Sel.Name {
@@ -77,16 +95,25 @@ func runRules(pass *analysis.Pass, ce *ast.CallExpr) {
 		return
 	}
 
-	if errMsg, ok := checkStartsWithLowercase(msg); !ok {
-		pass.Reportf(ce.Pos(), "%s", errMsg)
+	if config.EnableLowercase {
+		if errMsg, ok := checkStartsWithLowercase(msg); !ok {
+			pass.Reportf(ce.Pos(), "%s", errMsg)
+		}
 	}
-	if errMsg, ok := checkEnglishOnly(msg); !ok {
-		pass.Reportf(ce.Pos(), "%s", errMsg)
+
+	if config.EnableEnglishOnly {
+		if errMsg, ok := checkEnglishOnly(msg); !ok {
+			pass.Reportf(ce.Pos(), "%s", errMsg)
+		}
 	}
-	if errMsg, ok := checkNoEmojiOrSpecial(msg); !ok {
-		pass.Reportf(ce.Pos(), "%s", errMsg)
+	if config.EnableNoSpecial {
+		if errMsg, ok := checkNoEmojiOrSpecial(msg); !ok {
+			pass.Reportf(ce.Pos(), "%s", errMsg)
+		}
 	}
-	if errMsg, ok := checkNoSensitive(msg); !ok {
-		pass.Reportf(ce.Pos(), "%s", errMsg)
+	if config.EnableNoSensitive {
+		if errMsg, ok := checkNoSensitive(msg); !ok {
+			pass.Reportf(ce.Pos(), "%s", errMsg)
+		}
 	}
 }
